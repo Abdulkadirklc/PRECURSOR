@@ -1,0 +1,200 @@
+2025-03-01 23:36:41,646 - __main__ - INFO - Veritabanı başarıyla oluşturuldu veya mevcut veritabanı kullanıldı: haber_ozet.db
+2025-03-01 23:36:41,649 - __main__ - INFO - Haberler güncelleniyor...
+2025-03-01 23:36:41,649 - __main__ - INFO - Feed çekiliyor: https://www.ntv.com.tr/spor.rss
+2025-03-01 23:36:41,650 - __main__ - ERROR - PyTorch yüklü değil. Basit özetleme kullanılacak.
+2025-03-01 23:36:41,650 - __main__ - WARNING - PyTorch yüklü değil. Basit özetleme kullanılacak.
+2025-03-01 23:36:41,654 - __main__ - INFO - Uygulama başlatılıyor... LLM Tipi: transformers, Model: facebook/bart-large-cnn
+2025-03-01 23:36:41,781 - werkzeug - INFO -  * Restarting with stat
+2025-03-01 23:36:42,487 - __main__ - WARNING - Feed çekilirken uyarı: document declared as us-ascii, but parsed as utf-8
+2025-03-01 23:36:42,487 - __main__ - INFO - Haber özetleniyor: Serdal Adalı: Yanlış yapanlardan hesap soracağız
+2025-03-01 23:36:42,489 - __main__ - INFO - Haber özetleniyor: 1. Lig maç sonuçları: Esenler Erokspor: 1 - Amed Sportif Faaliyetler: 1
+2025-03-01 23:36:42,490 - __main__ - INFO - Haber özetleniyor: THY Euroleague'in 27. haftasında Türk takımlarından 2'de 1
+2025-03-01 23:36:42,490 - __main__ - INFO - Haber özetleniyor: Arda Güler için yeni transfer iddiası: İspanyollar teklifi yazdı
+2025-03-01 23:36:42,492 - __main__ - INFO - Haber özetleniyor: Ankaragücü'nde 10 şampiyonada 9 kupa kazanan güreş şubesi kapatıldı
+2025-03-01 23:36:42,493 - __main__ - INFO - Feed çekiliyor: https://www.sabah.com.tr/rss/spor.xml
+2025-03-01 23:36:42,882 - __main__ - INFO - Haber özetleniyor: Gedson Fernandes: "Onun çok önemli etkisi ve yardımı var"
+2025-03-01 23:36:42,882 - __main__ - INFO - Haber özetleniyor: Fenerbahçe'den Kasımpaşa-Galatasaray maçı öncesi tepki! "Bu durum adil mi?"
+2025-03-01 23:36:42,883 - __main__ - INFO - Haber özetleniyor: Son dakika: Beşiktaş, Solskjaer ile kaybetmiyor! Kayserispor engelini de geçti...
+2025-03-01 23:36:42,883 - __main__ - INFO - Haber özetleniyor: Galatasaray'a güzel haber! Antrenmanlara başladı...
+2025-03-01 23:36:42,883 - __main__ - INFO - Haber özetleniyor: Adana Demirspor ile Bodrum FK yenişemedi!
+2025-03-01 23:36:42,883 - __main__ - INFO - spor kategorisinde 10 haber çekildi.
+2025-03-01 23:36:42,887 - __main__ - INFO - Veritabanına 10 haber eklendi, 0 haber güncellendi.
+2025-03-01 23:36:42,887 - __main__ - INFO - Feed çekiliyor: https://www.takvim.com.tr/rss/ekonomi.xml
+2025-03-01 23:36:43,328 - __main__ - INFO - Haber özetleniyor: İş kurana 2 milyon liraya kadar destek! Başvuru tarihleri ne zaman?
+2025-03-01 23:36:43,328 - __main__ - INFO - Haber özetleniyor: Hazine ve Maliye Bakanı Mehmet Şimşek duyurdu: Yeni kredi paketi geliyor
+2025-03-01 23:36:43,328 - __main__ - INFO - Haber özetleniyor: MART AYI KİRA ARTIŞ ORANI | 2025 Mart ayı kira zammı ne kadar? Kira artış oranı hesaplama!
+2025-03-01 23:36:43,328 - __main__ - INFO - Haber özetleniyor: Bugün altın alınır mı? 1 Mart 2025 altın fiyatları anlık kaç TL? Gram, çeyrek, yarım, tam altın fiyatları...
+2025-03-01 23:36:43,329 - __main__ - INFO - Haber özetleniyor: TCMB’den döviz kredilerinde sıkılaşma adımı
+2025-03-01 23:36:43,329 - __main__ - INFO - Feed çekiliyor: https://www.bloomberght.com/rss
+2025-03-01 23:36:43,593 - __main__ - WARNING - Feed çekilirken uyarı: document declared as us-ascii, but parsed as utf-8
+2025-03-01 23:36:43,593 - __main__ - INFO - Haber özetleniyor: Kadın istihdamı için verilen destekler artırıldı
+2025-03-01 23:36:43,593 - __main__ - INFO - Haber özetleniyor: Çin'de imalat aktivitesi Şubat'ta genişleme bölgesine döndü
+2025-03-01 23:36:43,593 - __main__ - INFO - Haber özetleniyor: Gözaltına alınan Zorlu Holding CEO'su Cem Köksal istifa etti
+2025-03-01 23:36:43,594 - __main__ - INFO - Haber özetleniyor: Değerli konut sahipleri beyandan uzak durdu
+2025-03-01 23:36:43,594 - __main__ - INFO - Haber özetleniyor: Yıllık gelir vergisi beyannamesi verme dönemi başladı
+2025-03-01 23:36:43,594 - __main__ - INFO - Feed çekiliyor: https://www.yeniakit.com.tr/rss/haber/ekonomi
+2025-03-01 23:36:43,968 - __main__ - INFO - Veritabanı başarıyla oluşturuldu veya mevcut veritabanı kullanıldı: haber_ozet.db
+2025-03-01 23:36:43,968 - __main__ - INFO - Haberler güncelleniyor...
+2025-03-01 23:36:43,969 - __main__ - INFO - Feed çekiliyor: https://www.ntv.com.tr/spor.rss
+2025-03-01 23:36:43,970 - __main__ - ERROR - PyTorch yüklü değil. Basit özetleme kullanılacak.
+2025-03-01 23:36:43,970 - __main__ - WARNING - PyTorch yüklü değil. Basit özetleme kullanılacak.
+2025-03-01 23:36:43,973 - __main__ - INFO - Uygulama başlatılıyor... LLM Tipi: transformers, Model: facebook/bart-large-cnn
+2025-03-01 23:36:43,998 - werkzeug - WARNING -  * Debugger is active!
+2025-03-01 23:36:44,002 - werkzeug - INFO -  * Debugger PIN: 574-721-575
+2025-03-01 23:36:44,098 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2025-03-01 23:36:44,217 - __main__ - INFO - Haber özetleniyor: BEE’O Propolis, Amerika’da "En İyi Sağlık ve Güzellik Markaları" Listesinde!
+2025-03-01 23:36:44,217 - __main__ - INFO - Haber özetleniyor: Lübnan duyurdu: Türkiye'den gelen yolcuda yakaladık
+2025-03-01 23:36:44,218 - __main__ - INFO - Haber özetleniyor: Emekli ve engellilere 1500 tl ödeme
+2025-03-01 23:36:44,218 - __main__ - INFO - Haber özetleniyor: TÜİK açıkladı: 2 aylık enflasyon farkı ne kadar oldu? 2025 Şubat TEFE TÜFE oranı
+2025-03-01 23:36:44,219 - __main__ - INFO - Haber özetleniyor: THY’den Ordu Giresun’a büyük adım!
+2025-03-01 23:36:44,219 - __main__ - INFO - ekonomi kategorisinde 15 haber çekildi.
+2025-03-01 23:36:44,223 - __main__ - INFO - Veritabanına 12 haber eklendi, 3 haber güncellendi.
+2025-03-01 23:36:44,224 - __main__ - INFO - Feed çekiliyor: https://www.chip.com.tr/rss/
+2025-03-01 23:36:44,275 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:36:44] "GET / HTTP/1.1" 200 -
+2025-03-01 23:36:44,525 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:36:44] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-03-01 23:36:44,528 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:36:44] "[36mGET /static/js/app.js HTTP/1.1[0m" 304 -
+2025-03-01 23:36:44,740 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:36:44] "GET /api/kategoriler HTTP/1.1" 200 -
+2025-03-01 23:36:44,885 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:36:44] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-03-01 23:36:44,887 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:36:44] "GET /api/haberler HTTP/1.1" 200 -
+2025-03-01 23:36:45,091 - __main__ - WARNING - Feed çekilirken uyarı: document declared as us-ascii, but parsed as utf-8
+2025-03-01 23:36:45,092 - __main__ - INFO - Haber özetleniyor: Serdal Adalı: Yanlış yapanlardan hesap soracağız
+2025-03-01 23:36:45,094 - __main__ - INFO - Haber özetleniyor: 1. Lig maç sonuçları: Esenler Erokspor: 1 - Amed Sportif Faaliyetler: 1
+2025-03-01 23:36:45,094 - __main__ - INFO - Haber özetleniyor: THY Euroleague'in 27. haftasında Türk takımlarından 2'de 1
+2025-03-01 23:36:45,099 - __main__ - INFO - Haber özetleniyor: Arda Güler için yeni transfer iddiası: İspanyollar teklifi yazdı
+2025-03-01 23:36:45,100 - __main__ - INFO - Haber özetleniyor: Ankaragücü'nde 10 şampiyonada 9 kupa kazanan güreş şubesi kapatıldı
+2025-03-01 23:36:45,102 - __main__ - INFO - Feed çekiliyor: https://www.sabah.com.tr/rss/spor.xml
+2025-03-01 23:36:45,521 - __main__ - INFO - Haber özetleniyor: Gizemli enerji: Giza Piramidi'nde yapılan sırlarla dolu bir keşif
+2025-03-01 23:36:45,522 - __main__ - INFO - Haber özetleniyor: Uluslararası Uzay İstasyonu'nda "az mikrop" tehlikesi
+2025-03-01 23:36:45,522 - __main__ - INFO - Haber özetleniyor: Google Chrome'a ​​yeni bölünmüş ekran özelliği geliyor
+2025-03-01 23:36:45,522 - __main__ - INFO - Haber özetleniyor: realme C75 Türkiye'de satışa sunuldu. İşte fiyatı ve özellikleri!
+2025-03-01 23:36:45,522 - __main__ - INFO - Haber özetleniyor: Terminator 2, retro bir oyun olarak geri dönüyor
+2025-03-01 23:36:45,522 - __main__ - INFO - Feed çekiliyor: https://www.ntv.com.tr/teknoloji.rss
+2025-03-01 23:36:45,538 - __main__ - INFO - Haber özetleniyor: Gedson Fernandes: "Onun çok önemli etkisi ve yardımı var"
+2025-03-01 23:36:45,539 - __main__ - INFO - Haber özetleniyor: Fenerbahçe'den Kasımpaşa-Galatasaray maçı öncesi tepki! "Bu durum adil mi?"
+2025-03-01 23:36:45,539 - __main__ - INFO - Haber özetleniyor: Son dakika: Beşiktaş, Solskjaer ile kaybetmiyor! Kayserispor engelini de geçti...
+2025-03-01 23:36:45,539 - __main__ - INFO - Haber özetleniyor: Galatasaray'a güzel haber! Antrenmanlara başladı...
+2025-03-01 23:36:45,539 - __main__ - INFO - Haber özetleniyor: Adana Demirspor ile Bodrum FK yenişemedi!
+2025-03-01 23:36:45,539 - __main__ - INFO - spor kategorisinde 10 haber çekildi.
+2025-03-01 23:36:45,541 - __main__ - INFO - Veritabanına 0 haber eklendi, 10 haber güncellendi.
+2025-03-01 23:36:45,541 - __main__ - INFO - Feed çekiliyor: https://www.takvim.com.tr/rss/ekonomi.xml
+2025-03-01 23:36:46,232 - __main__ - INFO - Haber özetleniyor: İş kurana 2 milyon liraya kadar destek! Başvuru tarihleri ne zaman?
+2025-03-01 23:36:46,232 - __main__ - INFO - Haber özetleniyor: Hazine ve Maliye Bakanı Mehmet Şimşek duyurdu: Yeni kredi paketi geliyor
+2025-03-01 23:36:46,232 - __main__ - INFO - Haber özetleniyor: MART AYI KİRA ARTIŞ ORANI | 2025 Mart ayı kira zammı ne kadar? Kira artış oranı hesaplama!
+2025-03-01 23:36:46,232 - __main__ - INFO - Haber özetleniyor: Bugün altın alınır mı? 1 Mart 2025 altın fiyatları anlık kaç TL? Gram, çeyrek, yarım, tam altın fiyatları...
+2025-03-01 23:36:46,232 - __main__ - INFO - Haber özetleniyor: TCMB’den döviz kredilerinde sıkılaşma adımı
+2025-03-01 23:36:46,233 - __main__ - INFO - Feed çekiliyor: https://www.bloomberght.com/rss
+2025-03-01 23:36:46,431 - __main__ - WARNING - Feed çekilirken uyarı: document declared as us-ascii, but parsed as utf-8
+2025-03-01 23:36:46,432 - __main__ - INFO - Haber özetleniyor: Kadın istihdamı için verilen destekler artırıldı
+2025-03-01 23:36:46,432 - __main__ - INFO - Haber özetleniyor: Çin'de imalat aktivitesi Şubat'ta genişleme bölgesine döndü
+2025-03-01 23:36:46,432 - __main__ - INFO - Haber özetleniyor: Gözaltına alınan Zorlu Holding CEO'su Cem Köksal istifa etti
+2025-03-01 23:36:46,432 - __main__ - INFO - Haber özetleniyor: Değerli konut sahipleri beyandan uzak durdu
+2025-03-01 23:36:46,432 - __main__ - INFO - Haber özetleniyor: Yıllık gelir vergisi beyannamesi verme dönemi başladı
+2025-03-01 23:36:46,432 - __main__ - INFO - Feed çekiliyor: https://www.yeniakit.com.tr/rss/haber/ekonomi
+2025-03-01 23:36:46,558 - __main__ - WARNING - Feed çekilirken uyarı: document declared as us-ascii, but parsed as utf-8
+2025-03-01 23:36:46,558 - __main__ - INFO - Haber özetleniyor: Dünyanın en büyük elektrikli feribotunda Türk imzası: 143 metre uzunluğunda, 200 otomobil kapasiteli
+2025-03-01 23:36:46,559 - __main__ - INFO - Haber özetleniyor: Microsoft'ta bir devir sona erdi: Skype kapanıyor
+2025-03-01 23:36:46,560 - __main__ - INFO - Haber özetleniyor: Teknoloji devi şirket ekonomik zorluklar yaşıyor: Fabrika açılışı da ertelendi
+2025-03-01 23:36:46,560 - __main__ - INFO - Haber özetleniyor: WhatsApp çöktü mü? WhatsApp neden açılmıyor? 28 Şubat WhatsApp son durum
+2025-03-01 23:36:46,560 - __main__ - INFO - Haber özetleniyor: Evlerde kuantum bilgisayarlar kullanılabilir mi?
+2025-03-01 23:36:46,562 - __main__ - INFO - teknoloji kategorisinde 10 haber çekildi.
+2025-03-01 23:36:46,566 - __main__ - INFO - Veritabanına 6 haber eklendi, 4 haber güncellendi.
+2025-03-01 23:36:46,566 - __main__ - INFO - Feed çekiliyor: https://www.hurriyet.com.tr/rss/gundem
+2025-03-01 23:36:46,691 - __main__ - INFO - Haber özetleniyor: BEE’O Propolis, Amerika’da "En İyi Sağlık ve Güzellik Markaları" Listesinde!
+2025-03-01 23:36:46,692 - __main__ - INFO - Haber özetleniyor: Lübnan duyurdu: Türkiye'den gelen yolcuda yakaladık
+2025-03-01 23:36:46,692 - __main__ - INFO - Haber özetleniyor: Emekli ve engellilere 1500 tl ödeme
+2025-03-01 23:36:46,692 - __main__ - INFO - Haber özetleniyor: TÜİK açıkladı: 2 aylık enflasyon farkı ne kadar oldu? 2025 Şubat TEFE TÜFE oranı
+2025-03-01 23:36:46,693 - __main__ - INFO - Haber özetleniyor: THY’den Ordu Giresun’a büyük adım!
+2025-03-01 23:36:46,693 - __main__ - INFO - ekonomi kategorisinde 15 haber çekildi.
+2025-03-01 23:36:46,697 - __main__ - INFO - Veritabanına 0 haber eklendi, 15 haber güncellendi.
+2025-03-01 23:36:46,697 - __main__ - INFO - Feed çekiliyor: https://www.chip.com.tr/rss/
+2025-03-01 23:36:47,377 - __main__ - INFO - Haber özetleniyor: Gizemli enerji: Giza Piramidi'nde yapılan sırlarla dolu bir keşif
+2025-03-01 23:36:47,378 - __main__ - INFO - Haber özetleniyor: Uluslararası Uzay İstasyonu'nda "az mikrop" tehlikesi
+2025-03-01 23:36:47,378 - __main__ - INFO - Haber özetleniyor: Google Chrome'a ​​yeni bölünmüş ekran özelliği geliyor
+2025-03-01 23:36:47,379 - __main__ - INFO - Haber özetleniyor: realme C75 Türkiye'de satışa sunuldu. İşte fiyatı ve özellikleri!
+2025-03-01 23:36:47,379 - __main__ - INFO - Haber özetleniyor: Terminator 2, retro bir oyun olarak geri dönüyor
+2025-03-01 23:36:47,379 - __main__ - INFO - Feed çekiliyor: https://www.ntv.com.tr/teknoloji.rss
+2025-03-01 23:36:47,943 - __main__ - INFO - Haber özetleniyor: Emine Erdoğan'dan şehit aileleriyle iftar paylaşımı
+2025-03-01 23:36:47,943 - __main__ - INFO - Haber özetleniyor: İmralı'nın tarihi çağrısı... MHP lideri Bahçeli: Baştan sona değerli ve önemlidir
+2025-03-01 23:36:47,943 - __main__ - INFO - Haber özetleniyor: Özel: İftar sofralarındaki sert siyaset dilini terk edelim
+2025-03-01 23:36:47,943 - __main__ - INFO - Haber özetleniyor: İftar için horoz keserken kendini yaraladı; kan kaybından öldü
+2025-03-01 23:36:47,943 - __main__ - INFO - Haber özetleniyor: Son dakika... Cumhurbaşkanı Erdoğan: Sözler tutulmazsa günah bizden gider
+2025-03-01 23:36:47,943 - __main__ - INFO - Feed çekiliyor: https://www.sozcu.com.tr/rss/gundem.xml
+2025-03-01 23:36:48,149 - __main__ - INFO - Haber özetleniyor: Mardin'de TIR ile yolcu minibüsü çarpıştı: Yaralılar var
+2025-03-01 23:36:48,149 - __main__ - WARNING - Haber içeriği çok kısa veya yok: Komşusunda iftardayken evi küle döndü
+2025-03-01 23:36:48,149 - __main__ - WARNING - Haber içeriği çok kısa veya yok: Solskjaer: ‘Beşiktaş karakterini gösterdik’
+2025-03-01 23:36:48,149 - __main__ - WARNING - Haber içeriği çok kısa veya yok: Elon Musk 14'üncü kez baba oldu
+2025-03-01 23:36:48,149 - __main__ - WARNING - Haber içeriği çok kısa veya yok: Bahçeli'den İmralı çağrısı sonrası yeni açıklama
+2025-03-01 23:36:48,149 - __main__ - INFO - gundem kategorisinde 6 haber çekildi.
+2025-03-01 23:36:48,160 - __main__ - INFO - Veritabanına 3 haber eklendi, 3 haber güncellendi.
+2025-03-01 23:36:48,161 - __main__ - INFO - Feed çekiliyor: http://www.milliyet.com.tr/rss/rssNew/magazinRss.xml
+2025-03-01 23:36:48,371 - __main__ - WARNING - Feed çekilirken uyarı: document declared as us-ascii, but parsed as utf-8
+2025-03-01 23:36:48,372 - __main__ - INFO - Haber özetleniyor: Dünyanın en büyük elektrikli feribotunda Türk imzası: 143 metre uzunluğunda, 200 otomobil kapasiteli
+2025-03-01 23:36:48,372 - __main__ - INFO - Haber özetleniyor: Microsoft'ta bir devir sona erdi: Skype kapanıyor
+2025-03-01 23:36:48,373 - __main__ - INFO - Haber özetleniyor: Teknoloji devi şirket ekonomik zorluklar yaşıyor: Fabrika açılışı da ertelendi
+2025-03-01 23:36:48,374 - __main__ - INFO - Haber özetleniyor: WhatsApp çöktü mü? WhatsApp neden açılmıyor? 28 Şubat WhatsApp son durum
+2025-03-01 23:36:48,374 - __main__ - INFO - Haber özetleniyor: Evlerde kuantum bilgisayarlar kullanılabilir mi?
+2025-03-01 23:36:48,375 - __main__ - INFO - teknoloji kategorisinde 10 haber çekildi.
+2025-03-01 23:36:48,379 - __main__ - INFO - Veritabanına 0 haber eklendi, 10 haber güncellendi.
+2025-03-01 23:36:48,379 - __main__ - INFO - Feed çekiliyor: https://www.hurriyet.com.tr/rss/gundem
+2025-03-01 23:36:49,482 - __main__ - INFO - Haber özetleniyor: Emine Erdoğan'dan şehit aileleriyle iftar paylaşımı
+2025-03-01 23:36:49,482 - __main__ - INFO - Haber özetleniyor: İmralı'nın tarihi çağrısı... MHP lideri Bahçeli: Baştan sona değerli ve önemlidir
+2025-03-01 23:36:49,482 - __main__ - INFO - Haber özetleniyor: Özel: İftar sofralarındaki sert siyaset dilini terk edelim
+2025-03-01 23:36:49,483 - __main__ - INFO - Haber özetleniyor: İftar için horoz keserken kendini yaraladı; kan kaybından öldü
+2025-03-01 23:36:49,483 - __main__ - INFO - Haber özetleniyor: Son dakika... Cumhurbaşkanı Erdoğan: Sözler tutulmazsa günah bizden gider
+2025-03-01 23:36:49,483 - __main__ - INFO - Feed çekiliyor: https://www.sozcu.com.tr/rss/gundem.xml
+2025-03-01 23:36:49,510 - __main__ - INFO - Haber özetleniyor: O Ses Türkiye Mert Özer kimdir? 18 yaşındaki görme engelli Mert Özer hayat hikayesiyle jüri üyelerini duygulandırdı
+2025-03-01 23:36:49,511 - __main__ - INFO - Haber özetleniyor: Alişan annesinin doğum gününü kutladı! 'Seni çok seviyoruz'
+2025-03-01 23:36:49,511 - __main__ - INFO - Haber özetleniyor: Piyasa son bölümde neler oldu? Piyasa 2. bölüm özeti
+2025-03-01 23:36:49,512 - __main__ - INFO - Haber özetleniyor: Masterchef Beyza sürpriz yaptı! Türkiye'de yaşayacağı şehri paylaştı
+2025-03-01 23:36:49,513 - __main__ - INFO - Haber özetleniyor: SON DAKİKA SURVİVOR HABERİ: Survivor kim elendi? Survivor elenen isim belli oldu mu? Survivor Senem mi Meryem mi elendi?
+2025-03-01 23:36:49,513 - __main__ - INFO - Feed çekiliyor: https://www.sabah.com.tr/rss/magazin.xml
+2025-03-01 23:36:49,774 - __main__ - INFO - Haber özetleniyor: Mardin'de TIR ile yolcu minibüsü çarpıştı: Yaralılar var
+2025-03-01 23:36:49,774 - __main__ - WARNING - Haber içeriği çok kısa veya yok: Komşusunda iftardayken evi küle döndü
+2025-03-01 23:36:49,774 - __main__ - WARNING - Haber içeriği çok kısa veya yok: Solskjaer: ‘Beşiktaş karakterini gösterdik’
+2025-03-01 23:36:49,774 - __main__ - WARNING - Haber içeriği çok kısa veya yok: Elon Musk 14'üncü kez baba oldu
+2025-03-01 23:36:49,774 - __main__ - WARNING - Haber içeriği çok kısa veya yok: Bahçeli'den İmralı çağrısı sonrası yeni açıklama
+2025-03-01 23:36:49,776 - __main__ - INFO - gundem kategorisinde 6 haber çekildi.
+2025-03-01 23:36:49,777 - __main__ - INFO - Veritabanına 0 haber eklendi, 6 haber güncellendi.
+2025-03-01 23:36:49,777 - __main__ - INFO - Feed çekiliyor: http://www.milliyet.com.tr/rss/rssNew/magazinRss.xml
+2025-03-01 23:36:49,780 - __main__ - INFO - Haber özetleniyor: Bereket ve rahmet ayı ramazan
+2025-03-01 23:36:49,782 - __main__ - INFO - Haber özetleniyor: ‘Evlilik aşkı öldürmez’
+2025-03-01 23:36:49,782 - __main__ - INFO - Haber özetleniyor: Ödül törenlerine idari yaptırımlar başlıyor!
+2025-03-01 23:36:49,782 - __main__ - INFO - Haber özetleniyor: ‘Beni utandırmayacak proje arıyorum’
+2025-03-01 23:36:49,782 - __main__ - INFO - Haber özetleniyor: ‘Havalı ve dürüst bir çalışma’
+2025-03-01 23:36:49,782 - __main__ - INFO - magazin kategorisinde 10 haber çekildi.
+2025-03-01 23:36:49,791 - __main__ - INFO - Veritabanına 10 haber eklendi, 0 haber güncellendi.
+2025-03-01 23:36:49,792 - __main__ - INFO - Haber güncellemesi tamamlandı. 30 dakika sonra tekrar güncellenecek.
+2025-03-01 23:36:50,621 - __main__ - INFO - Haber özetleniyor: O Ses Türkiye Mert Özer kimdir? 18 yaşındaki görme engelli Mert Özer hayat hikayesiyle jüri üyelerini duygulandırdı
+2025-03-01 23:36:50,621 - __main__ - INFO - Haber özetleniyor: Alişan annesinin doğum gününü kutladı! 'Seni çok seviyoruz'
+2025-03-01 23:36:50,621 - __main__ - INFO - Haber özetleniyor: Piyasa son bölümde neler oldu? Piyasa 2. bölüm özeti
+2025-03-01 23:36:50,622 - __main__ - INFO - Haber özetleniyor: Masterchef Beyza sürpriz yaptı! Türkiye'de yaşayacağı şehri paylaştı
+2025-03-01 23:36:50,623 - __main__ - INFO - Haber özetleniyor: SON DAKİKA SURVİVOR HABERİ: Survivor kim elendi? Survivor elenen isim belli oldu mu? Survivor Senem mi Meryem mi elendi?
+2025-03-01 23:36:50,624 - __main__ - INFO - Feed çekiliyor: https://www.sabah.com.tr/rss/magazin.xml
+2025-03-01 23:36:50,851 - __main__ - INFO - Haber özetleniyor: Bereket ve rahmet ayı ramazan
+2025-03-01 23:36:50,851 - __main__ - INFO - Haber özetleniyor: ‘Evlilik aşkı öldürmez’
+2025-03-01 23:36:50,852 - __main__ - INFO - Haber özetleniyor: Ödül törenlerine idari yaptırımlar başlıyor!
+2025-03-01 23:36:50,852 - __main__ - INFO - Haber özetleniyor: ‘Beni utandırmayacak proje arıyorum’
+2025-03-01 23:36:50,852 - __main__ - INFO - Haber özetleniyor: ‘Havalı ve dürüst bir çalışma’
+2025-03-01 23:36:50,852 - __main__ - INFO - magazin kategorisinde 10 haber çekildi.
+2025-03-01 23:36:50,855 - __main__ - INFO - Veritabanına 0 haber eklendi, 10 haber güncellendi.
+2025-03-01 23:36:50,855 - __main__ - INFO - Haber güncellemesi tamamlandı. 30 dakika sonra tekrar güncellenecek.
+2025-03-01 23:37:22,394 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:37:22] "GET /api/haberler/spor HTTP/1.1" 200 -
+2025-03-01 23:37:26,225 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:37:26] "GET /api/haberler/ekonomi HTTP/1.1" 200 -
+2025-03-01 23:37:28,090 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:37:28] "GET /api/haberler/teknoloji HTTP/1.1" 200 -
+2025-03-01 23:38:13,061 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:38:13] "GET /api/haberler/gundem HTTP/1.1" 200 -
+2025-03-01 23:38:40,324 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:38:40] "GET /api/haberler/magazin HTTP/1.1" 200 -
+2025-03-01 23:38:48,822 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:38:48] "GET /api/haberler/gundem HTTP/1.1" 200 -
+2025-03-01 23:38:49,825 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:38:49] "GET /api/haberler/teknoloji HTTP/1.1" 200 -
+2025-03-01 23:38:50,865 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:38:50] "GET /api/haberler/ekonomi HTTP/1.1" 200 -
+2025-03-01 23:38:51,479 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:38:51] "GET /api/haberler/spor HTTP/1.1" 200 -
+2025-03-01 23:38:58,151 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:38:58] "GET /api/haberler HTTP/1.1" 200 -
+2025-03-01 23:39:01,810 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:01] "GET /api/haberler/gundem HTTP/1.1" 200 -
+2025-03-01 23:39:02,925 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:02] "GET /api/haberler/teknoloji HTTP/1.1" 200 -
+2025-03-01 23:39:03,422 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:03] "GET /api/haberler/ekonomi HTTP/1.1" 200 -
+2025-03-01 23:39:04,510 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:04] "GET /api/haberler/spor HTTP/1.1" 200 -
+2025-03-01 23:39:19,448 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:19] "GET /api/haberler/ekonomi HTTP/1.1" 200 -
+2025-03-01 23:39:20,178 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:20] "GET /api/haberler/teknoloji HTTP/1.1" 200 -
+2025-03-01 23:39:21,029 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:21] "GET /api/haberler/gundem HTTP/1.1" 200 -
+2025-03-01 23:39:22,007 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:22] "GET /api/haberler/magazin HTTP/1.1" 200 -
+2025-03-01 23:39:27,931 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:27] "GET /api/haberler/ekonomi HTTP/1.1" 200 -
+2025-03-01 23:39:28,543 - werkzeug - INFO - 127.0.0.1 - - [01/Mar/2025 23:39:28] "GET /api/haberler/spor HTTP/1.1" 200 -

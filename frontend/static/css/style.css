@@ -1,0 +1,208 @@
+/* Genel Stiller */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Header */
+header {
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 20px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+}
+
+header p {
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+/* Navigasyon */
+nav {
+    background-color: #34495e;
+    padding: 10px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+nav ul li {
+    margin-right: 10px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    display: block;
+}
+
+nav ul li a:hover, nav ul li a.active {
+    background-color: #3498db;
+}
+
+/* Ana İçerik */
+main {
+    padding: 30px 0;
+}
+
+.loading {
+    text-align: center;
+    padding: 30px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.haber-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.haber-kart {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.haber-kart:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.haber-resim {
+    height: 200px;
+    background-color: #eee;
+    background-size: cover;
+    background-position: center;
+}
+
+.haber-icerik {
+    padding: 20px;
+}
+
+/* Kategori renkleri */
+.haber-kategori {
+    display: inline-block;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+}
+
+.haber-kategori.spor {
+    background-color: #e74c3c; /* Kırmızı */
+}
+
+.haber-kategori.ekonomi {
+    background-color: #27ae60; /* Yeşil */
+}
+
+.haber-kategori.teknoloji {
+    background-color: #9b59b6; /* Mor */
+}
+
+.haber-kategori.gundem {
+    background-color: #f39c12; /* Turuncu */
+}
+
+.haber-kategori.magazin {
+    background-color: #e84393; /* Pembe */
+}
+
+.haber-kategori.tum {
+    background-color: #3498db; /* Mavi - varsayılan */
+}
+
+.haber-baslik {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.haber-ozet {
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.haber-kaynak {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.haber-link {
+    display: inline-block;
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.haber-link:hover {
+    background-color: #3498db;
+}
+
+/* Footer */
+footer {
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .haber-container {
+        grid-template-columns: 1fr;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    nav ul {
+        flex-direction: column;
+    }
+    
+    nav ul li {
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+} 
