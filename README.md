@@ -140,14 +140,3 @@ Backend, Flask kullanılarak geliştirilmiştir. Ana dosyalar:
 
 Frontend, saf HTML, CSS ve JavaScript kullanılarak geliştirilmiştir. Dosyalar `frontend` klasöründe bulunmaktadır.
 
-## Ekran Görüntüleri
-
-Uygulamanın ekran görüntülerini eklemek için:
-
-1. Ekran görüntüsünü alın
-2. Görüntüyü `frontend/static/images` klasörüne kaydedin
-3. README.md dosyasında aşağıdaki gibi referans verin:
-
-```markdown
-![Açıklama](frontend/static/images/resim_adi.png)
-```
