@@ -2,7 +2,7 @@
 
 Bu proje, çeşitli haber kaynaklarından RSS feed'leri aracılığıyla haberleri çeken, doğal dil işleme teknolojileri kullanarak özetleyen ve kategorilere göre sınıflandıran bir web uygulamasıdır.
 
-![Precursor Ekran Görüntüsü](frontend/static/images/screenshot.png)
+![Precursor Ekran Görüntüsü](frontend/static/images/ss1.png)
 
 ## Özellikler
 
