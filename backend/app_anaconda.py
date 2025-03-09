@@ -11,6 +11,7 @@ import threading
 import logging
 import sys
 import re
+import webbrowser
 
 # Başlangıç mesajı
 print("="*50)
@@ -43,11 +44,69 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # LLM model seçimi (çevre değişkeninden veya varsayılan)
-LLM_MODEL = os.getenv("LLM_MODEL", "mlsum/bert2bert")  # Varsayılan model değiştirildi
-LLM_TYPE = os.getenv("LLM_TYPE", "transformers")  # transformers, openai
+DEFAULT_MODEL = "mrm8488/bert2bert_shared-turkish-summarization"  # Varsayılan model
+LLM_MODEL = os.getenv("LLM_MODEL", DEFAULT_MODEL)
+LLM_TYPE = os.getenv("LLM_TYPE", "transformers")
 OZET_MODU = os.getenv("OZET_MODU", "normal")  # normal veya super
 
 print(f"LLM Tipi: {LLM_TYPE}, Model: {LLM_MODEL}, Özet Modu: {OZET_MODU}")
+
+def init_llm_model():
+    """LLM modelini başlatır"""
+    global summarizer
+    try:
+        if LLM_TYPE == "transformers":
+            try:
+                from transformers import EncoderDecoderModel, BertTokenizer
+                # Önce tokenizer'ı yüklemeyi dene
+                tokenizer = BertTokenizer.from_pretrained(LLM_MODEL, local_files_only=True)
+                model = EncoderDecoderModel.from_pretrained(LLM_MODEL, local_files_only=True)
+                summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=-1 if device.type == "cpu" else 0)
+                logger.info(f"Transformers modeli başarıyla yüklendi (offline mod): {LLM_MODEL}")
+            except Exception as offline_error:
+                logger.warning(f"Offline model yüklenemedi, online deneniyor: {offline_error}")
+                # Online yüklemeyi dene
+                try:
+                    model = EncoderDecoderModel.from_pretrained(LLM_MODEL)
+                    tokenizer = BertTokenizer.from_pretrained(LLM_MODEL)
+                    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=-1 if device.type == "cpu" else 0)
+                    logger.info(f"Transformers modeli başarıyla yüklendi (online mod): {LLM_MODEL}")
+                except Exception as online_error:
+                    logger.error(f"Online model yükleme hatası: {online_error}")
+                    raise
+        else:
+            logger.warning(f"Desteklenmeyen LLM tipi: {LLM_TYPE}, basit özetleme kullanılacak")
+            summarizer = lambda metin, **kwargs: [{"summary_text": gelismis_basit_ozet(metin)}]
+    except Exception as e:
+        logger.error(f"LLM model yükleme hatası: {e}")
+        logger.warning("Basit özetleme moduna geçiliyor...")
+        summarizer = lambda metin, **kwargs: [{"summary_text": gelismis_basit_ozet(metin)}]
+
+def gelismis_basit_ozet(metin, super_ozet=False):
+    """Basit kurallara dayalı özetleme yapar"""
+    try:
+        # Noktalama işaretlerine göre cümlelere ayır
+        cumleler = re.split(r'[.!?]+', metin)
+        cumleler = [c.strip() for c in cumleler if len(c.strip()) > 10]
+        
+        if not cumleler:
+            return metin if len(metin) < 200 else metin[:197] + "..."
+            
+        if super_ozet:
+            # Sadece ilk cümleyi al
+            return cumleler[0]
+        else:
+            # İlk 3 cümleyi al (veya daha az varsa hepsini)
+            ozet = '. '.join(cumleler[:3]) + '.'
+            return ozet if len(ozet) < 500 else ozet[:497] + "..."
+            
+    except Exception as e:
+        logger.error(f"Basit özetleme hatası: {e}")
+        return metin[:197] + "..." if len(metin) > 200 else metin
+
+# Global değişkenler
+summarizer = None
+init_llm_model()
 
 app = Flask(__name__, 
             static_folder="../frontend/static",
@@ -56,7 +115,7 @@ app = Flask(__name__,
 # RSS feed'lerini yapılandırma dosyasından yükle
 def load_rss_feeds():
     """RSS feed'lerini yapılandırma dosyasından yükler"""
-    config_file = 'rss_feeds.json'
+    config_file = os.path.join(os.path.dirname(__file__), 'rss_feeds.json')
     
     try:
         with open(config_file, 'r', encoding='utf-8') as f:
@@ -66,7 +125,12 @@ def load_rss_feeds():
     except Exception as e:
         logger.error(f"RSS feed yapılandırma dosyası yüklenirken hata: {e}")
         logger.warning("Varsayılan RSS feed'leri kullanılacak.")
-        return {}
+        return {
+            "gundem": [
+                "https://www.hurriyet.com.tr/rss/gundem",
+                "https://www.ntv.com.tr/gundem.rss"
+            ]
+        }
 
 # RSS feed'lerini yükle
 RSS_FEEDS = load_rss_feeds()
@@ -79,6 +143,154 @@ def get_db_connection():
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
     return conn
+
+def ozet_olustur(metin):
+    """Verilen metni özetler"""
+    try:
+        # HTML etiketlerini temizle
+        temiz_metin = re.sub(r'<[^>]+>', '', metin)
+        temiz_metin = re.sub(r'\s+', ' ', temiz_metin).strip()
+        
+        if not temiz_metin:
+            return ""
+            
+        # Metin çok kısaysa direkt döndür
+        if len(temiz_metin) < 200:
+            return temiz_metin
+            
+        if LLM_TYPE == "transformers":
+            try:
+                if not summarizer:
+                    init_llm_model()
+                return summarizer(temiz_metin, max_length=150 if OZET_MODU != "super" else 75, min_length=50 if OZET_MODU != "super" else 20, do_sample=False)[0]['summary_text']
+            except Exception as e:
+                logger.error(f"Transformers özetleme hatası: {e}")
+                return gelismis_basit_ozet(temiz_metin, super_ozet=OZET_MODU == "super")
+        else:
+            return gelismis_basit_ozet(temiz_metin, super_ozet=OZET_MODU == "super")
+            
+    except Exception as e:
+        logger.error(f"Özetleme hatası: {e}")
+        return ""
+
+def haberleri_getir(kategori):
+    """Belirli bir kategorideki RSS feed'lerinden haberleri çeker"""
+    haberler = []
+    islenen_urller = set()  # İşlenen URL'leri takip etmek için set
+    
+    if kategori not in RSS_FEEDS:
+        logger.warning(f"Geçersiz kategori: {kategori}")
+        return haberler
+    
+    for feed_url in RSS_FEEDS[kategori]:
+        try:
+            logger.info(f"Feed çekiliyor: {feed_url}")
+            feed = feedparser.parse(feed_url)
+            
+            # Feed'in geçerli olup olmadığını kontrol et
+            if hasattr(feed, 'bozo_exception'):
+                logger.warning(f"Feed çekilirken uyarı: {feed.bozo_exception}")
+            
+            if not hasattr(feed, 'entries') or len(feed.entries) == 0:
+                logger.warning(f"Feed'de haber bulunamadı: {feed_url}")
+                continue
+                
+            for entry in feed.entries[:5]:  # Her feed'den en fazla 5 haber al
+                # URL kontrolü - aynı URL'den haber varsa atla
+                haber_url = entry.link if hasattr(entry, 'link') else ''
+                if not haber_url or haber_url in islenen_urller:
+                    continue
+                islenen_urller.add(haber_url)
+                
+                # İçerik alanını belirle - bazı RSS'lerde farklı alanlar kullanılabilir
+                icerik = ""
+                if hasattr(entry, 'description'):
+                    icerik = entry.description
+                elif hasattr(entry, 'summary'):
+                    icerik = entry.summary
+                elif hasattr(entry, 'content'):
+                    icerik = entry.content[0].value if len(entry.content) > 0 else ""
+                
+                # İçerik yoksa veya çok kısaysa atla
+                if not icerik or len(icerik) < 50:
+                    logger.warning(f"Haber içeriği çok kısa veya yok: {entry.title if hasattr(entry, 'title') else 'Başlıksız'}")
+                    continue
+                
+                # Resim URL'sini bul
+                resim_url = None
+                if hasattr(entry, 'media_content') and len(entry.media_content) > 0:
+                    resim_url = entry.media_content[0]['url']
+                elif hasattr(entry, 'links'):
+                    for link in entry.links:
+                        if link.get('type', '').startswith('image/'):
+                            resim_url = link.get('href')
+                            break
+                
+                # Tarihi parse et
+                try:
+                    tarih = datetime.fromtimestamp(time.mktime(entry.published_parsed))
+                except:
+                    tarih = datetime.now()
+                
+                # Özet oluştur
+                try:
+                    logger.info(f"Haber özetleniyor: {entry.title if hasattr(entry, 'title') else 'Başlıksız'}")
+                    ozet = ozet_olustur(icerik)
+                except Exception as e:
+                    logger.error(f"Özet oluşturma hatası: {str(e)}")
+                    ozet = entry.title if hasattr(entry, 'title') else 'Özet oluşturulamadı'
+                
+                haber = {
+                    'baslik': entry.title if hasattr(entry, 'title') else 'Başlıksız',
+                    'icerik': icerik,
+                    'ozet': ozet,
+                    'url': haber_url,
+                    'resim_url': resim_url,
+                    'kategori': kategori,
+                    'kaynak': feed.feed.title if hasattr(feed, 'feed') and hasattr(feed.feed, 'title') else 'Bilinmeyen Kaynak',
+                    'tarih': tarih
+                }
+                haberler.append(haber)
+                
+        except Exception as e:
+            logger.error(f"Feed işlenirken hata: {feed_url} - {str(e)}")
+            continue
+    
+    return haberler
+
+def haberleri_veritabanina_kaydet(haberler):
+    """Haberleri veritabanına kaydeder"""
+    if not haberler:
+        return
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    for haber in haberler:
+        try:
+            cursor.execute('''
+            INSERT INTO haberler (baslik, ozet, icerik, kategori, kaynak, url, resim_url, tarih)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                haber['baslik'],
+                haber['ozet'],
+                haber['icerik'],
+                haber['kategori'],
+                haber['kaynak'],
+                haber['url'],
+                haber['resim_url'],
+                haber['tarih']
+            ))
+        except sqlite3.IntegrityError:
+            logger.warning(f"Haber zaten mevcut: {haber['baslik']}")
+            continue
+        except Exception as e:
+            logger.error(f"Haber kaydedilirken hata: {str(e)}")
+            continue
+    
+    conn.commit()
+    conn.close()
+    logger.info(f"{len(haberler)} haber veritabanına kaydedildi.")
 
 def temizle_veritabani():
     """Veritabanını temizler ve yeni baştan başlar"""
@@ -100,6 +312,10 @@ def ilk_haberleri_yukle():
         haberler = haberleri_getir(kategori)
         haberleri_veritabanina_kaydet(haberler)
     logger.info("İlk haberler başarıyla yüklendi.")
+    
+    # Tarayıcıyı aç
+    logger.info("Web arayüzü açılıyor...")
+    webbrowser.open('http://localhost:5000')
 
 # Veritabanını oluştur
 def init_db():
@@ -130,173 +346,6 @@ def init_db():
 init_db()
 temizle_veritabani()
 ilk_haberleri_yukle()
-
-# LLM modelini başlat
-summarizer = None
-def init_llm_model():
-    """Seçilen LLM modelini başlatır"""
-    global summarizer, LLM_TYPE
-    
-    try:
-        import torch
-        logger.info(f"PyTorch sürümü: {torch.__version__}")
-        logger.info(f"Kullanılan cihaz: {device}")
-        pytorch_available = True
-    except ImportError:
-        logger.error("PyTorch yüklü değil. Basit özetleme kullanılacak.")
-        pytorch_available = False
-    
-    if LLM_TYPE == "transformers" and pytorch_available:
-        logger.info(f"Transformers modeli yükleniyor: {LLM_MODEL}")
-        try:
-            # Türkçe modeller için öneri listesi
-            turkce_modeller = [
-                "mlsum/bert2bert",  # Türkçe haber özetleme için özel model
-                "google/mt5-small",  # Çok dilli, hafif model
-                "facebook/mbart-large-cc25",  # Çok dilli BART
-                "bigscience/bloom-560m"  # Çok dilli, orta boyutlu model
-            ]
-            
-            # Önce belirtilen modeli dene
-            try:
-                if "t5" in LLM_MODEL.lower():
-                    from transformers import T5ForConditionalGeneration, T5Tokenizer
-                    model = T5ForConditionalGeneration.from_pretrained(LLM_MODEL).to(device)
-                    tokenizer = T5Tokenizer.from_pretrained(LLM_MODEL)
-                    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device.type == "cuda" else -1)
-                elif "bert2bert" in LLM_MODEL.lower():
-                    from transformers import EncoderDecoderModel, BertTokenizer
-                    model = EncoderDecoderModel.from_pretrained(LLM_MODEL).to(device)
-                    tokenizer = BertTokenizer.from_pretrained(LLM_MODEL)
-                    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device.type == "cuda" else -1)
-                else:
-                    summarizer = pipeline("summarization", model=LLM_MODEL, device=0 if device.type == "cuda" else -1)
-                logger.info(f"Model başarıyla yüklendi: {LLM_MODEL} ({device} üzerinde)")
-            except Exception as e:
-                logger.error(f"{LLM_MODEL} modeli yüklenirken hata: {e}")
-                
-                # Belirtilen model yüklenemediyse, Türkçe modelleri sırayla dene
-                for turkce_model in turkce_modeller:
-                    if turkce_model != LLM_MODEL:  # Zaten denenmemişse
-                        try:
-                            logger.info(f"Alternatif Türkçe model deneniyor: {turkce_model}")
-                            if "t5" in turkce_model.lower():
-                                from transformers import T5ForConditionalGeneration, T5Tokenizer
-                                model = T5ForConditionalGeneration.from_pretrained(turkce_model).to(device)
-                                tokenizer = T5Tokenizer.from_pretrained(turkce_model)
-                                summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device.type == "cuda" else -1)
-                            elif "bert2bert" in turkce_model.lower():
-                                from transformers import EncoderDecoderModel, BertTokenizer
-                                model = EncoderDecoderModel.from_pretrained(turkce_model).to(device)
-                                tokenizer = BertTokenizer.from_pretrained(turkce_model)
-                                summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device.type == "cuda" else -1)
-                            else:
-                                summarizer = pipeline("summarization", model=turkce_model, device=0 if device.type == "cuda" else -1)
-                            logger.info(f"Alternatif Türkçe model başarıyla yüklendi: {turkce_model} ({device} üzerinde)")
-                            break
-                        except Exception as e:
-                            logger.error(f"{turkce_model} modeli yüklenirken hata: {e}")
-                
-                # Hiçbir model yüklenemediyse
-                if summarizer is None:
-                    raise Exception("Hiçbir model yüklenemedi")
-                    
-        except Exception as e:
-            logger.error(f"Hiçbir model yüklenemedi: {e}")
-            logger.warning("Basit özetleme kullanılacak.")
-            summarizer = gelismis_basit_ozet_wrapper
-    elif LLM_TYPE == "transformers" and not pytorch_available:
-        logger.warning("PyTorch yüklü değil. Basit özetleme kullanılacak.")
-        summarizer = gelismis_basit_ozet_wrapper
-    elif LLM_TYPE == "openai":
-        logger.info("OpenAI API kullanılıyor.")
-        # OpenAI API kullanımı için gerekli importlar
-        try:
-            import openai
-            openai.api_key = os.getenv("OPENAI_API_KEY")
-            if not openai.api_key:
-                raise ValueError("OPENAI_API_KEY çevre değişkeni ayarlanmamış")
-            logger.info("OpenAI API başarıyla yapılandırıldı.")
-        except Exception as e:
-            logger.error(f"OpenAI API yapılandırılırken hata: {e}")
-            # Yedek olarak basit özetleme kullan
-            logger.warning("OpenAI API yapılandırılamadı. Basit özetleme kullanılacak.")
-            summarizer = gelismis_basit_ozet_wrapper
-    else:
-        logger.warning(f"Bilinmeyen LLM tipi veya PyTorch yüklü değil: {LLM_TYPE}, basit özetleme kullanılacak.")
-        summarizer = gelismis_basit_ozet_wrapper
-
-# Gelişmiş basit özetleme için wrapper fonksiyon
-def gelismis_basit_ozet_wrapper(metin, **kwargs):
-    return [{"summary_text": gelismis_basit_ozet(metin)}]
-
-def gelismis_basit_ozet(metin, super_ozet=False):
-    """Gelişmiş basit özetleme algoritması"""
-    # Metni cümlelere ayır
-    cumleler = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\!)\s', metin)
-    cumleler = [c.strip() for c in cumleler if len(c.strip()) > 10]  # Çok kısa cümleleri atla
-    
-    # Çok kısa metinleri özetleme
-    if len(cumleler) <= 3:
-        return metin
-    
-    # Anahtar kelimeler ve önem puanları
-    anahtar_kelimeler = [
-        "önemli", "kritik", "dikkat", "son dakika", "gelişme", 
-        "açıklama", "iddia", "karar", "sonuç", "etki", 
-        "değişiklik", "yeni", "ilk", "son", "büyük", "artış",
-        "zam", "fiyat", "ekonomi", "enflasyon", "kira", "konut",
-        "TÜİK", "TÜFE", "ÜFE", "yüzde", "oran", "hesaplama"
-    ]
-    
-    # Cümleleri puanla
-    cumle_puanlari = []
-    for i, cumle in enumerate(cumleler):
-        puan = 0
-        
-        # Konum puanı (ilk ve son cümleler daha önemli)
-        if i == 0:
-            puan += 5  # İlk cümle daha önemli
-        elif i == len(cumleler) - 1:
-            puan += 2  # Son cümle
-        elif i <= 2:
-            puan += 3  # İlk birkaç cümle
-        
-        # Uzunluk puanı (çok kısa veya çok uzun cümleler daha az önemli)
-        kelime_sayisi = len(cumle.split())
-        if 8 <= kelime_sayisi <= 25:
-            puan += 2
-        elif 5 <= kelime_sayisi < 8 or 25 < kelime_sayisi <= 35:
-            puan += 1
-        
-        # Anahtar kelime puanı
-        for kelime in anahtar_kelimeler:
-            if kelime.lower() in cumle.lower():
-                puan += 3
-        
-        # Sayısal veri içeren cümleler daha önemli
-        if re.search(r'yüzde \d+|\%\d+|\d+(\.\d+)? (TL|lira|dolar|euro)', cumle.lower()):
-            puan += 4
-        
-        # Tarih içeren cümleler önemli olabilir
-        if re.search(r'\d{1,2} (ocak|şubat|mart|nisan|mayıs|haziran|temmuz|ağustos|eylül|ekim|kasım|aralık)', cumle.lower()):
-            puan += 2
-            
-        cumle_puanlari.append((i, puan, cumle))
-    
-    # Puanlara göre sırala ve en yüksek puanlı 3 cümleyi seç
-    cumle_puanlari.sort(key=lambda x: x[1], reverse=True)
-    secilen_cumleler = cumle_puanlari[:3]
-    
-    # Orijinal sıralamaya göre sırala
-    secilen_cumleler.sort(key=lambda x: x[0])
-    
-    # Özeti oluştur
-    ozet = ". ".join([cumle for _, _, cumle in secilen_cumleler])
-    if not ozet.endswith('.'):
-        ozet += "."
-    
-    return ozet
 
 def temizle_html(html_icerik):
     """HTML içeriğini temizler ve düz metne dönüştürür"""
@@ -438,153 +487,6 @@ def ozet_olustur(metin, max_length=150):
         # Gelişmiş basit özetleme
         return gelismis_basit_ozet(temiz_metin, super_ozet=OZET_MODU == "super")
 
-def haberleri_getir(kategori):
-    """Belirli bir kategorideki RSS feed'lerinden haberleri çeker"""
-    haberler = []
-    
-    if kategori not in RSS_FEEDS:
-        logger.warning(f"Geçersiz kategori: {kategori}")
-        return haberler
-    
-    for feed_url in RSS_FEEDS[kategori]:
-        try:
-            logger.info(f"Feed çekiliyor: {feed_url}")
-            feed = feedparser.parse(feed_url)
-            
-            # Feed'in geçerli olup olmadığını kontrol et
-            if hasattr(feed, 'bozo_exception'):
-                logger.warning(f"Feed çekilirken uyarı: {feed.bozo_exception}")
-            
-            if not hasattr(feed, 'entries') or len(feed.entries) == 0:
-                logger.warning(f"Feed'de haber bulunamadı: {feed_url}")
-                continue
-                
-            for entry in feed.entries[:5]:  # Her feed'den en fazla 5 haber al
-                # İçerik alanını belirle - bazı RSS'lerde farklı alanlar kullanılabilir
-                icerik = ""
-                if hasattr(entry, 'description'):
-                    icerik = entry.description
-                elif hasattr(entry, 'summary'):
-                    icerik = entry.summary
-                elif hasattr(entry, 'content'):
-                    icerik = entry.content[0].value if len(entry.content) > 0 else ""
-                
-                # İçerik yoksa veya çok kısaysa atla
-                if not icerik or len(icerik) < 50:
-                    logger.warning(f"Haber içeriği çok kısa veya yok: {entry.title if hasattr(entry, 'title') else 'Başlıksız'}")
-                    continue
-                
-                # Resim URL'sini bul
-                resim_url = ""
-                # 1. Media içeriğinden resim URL'si bul
-                if hasattr(entry, 'media_content') and len(entry.media_content) > 0:
-                    for media in entry.media_content:
-                        if 'url' in media:
-                            resim_url = media['url']
-                            break
-                
-                # 2. Enclosure'dan resim URL'si bul
-                if not resim_url and hasattr(entry, 'enclosures') and len(entry.enclosures) > 0:
-                    for enclosure in entry.enclosures:
-                        if 'href' in enclosure and enclosure.get('type', '').startswith('image/'):
-                            resim_url = enclosure['href']
-                            break
-                
-                # 3. Media thumbnail'dan resim URL'si bul
-                if not resim_url and hasattr(entry, 'media_thumbnail') and len(entry.media_thumbnail) > 0:
-                    for thumbnail in entry.media_thumbnail:
-                        if 'url' in thumbnail:
-                            resim_url = thumbnail['url']
-                            break
-                
-                # 4. İçerikten resim URL'si çıkarmaya çalış
-                if not resim_url and icerik:
-                    img_match = re.search(r'<img[^>]+src="([^">]+)"', icerik)
-                    if img_match:
-                        resim_url = img_match.group(1)
-                
-                # Yayın tarihini belirle
-                yayin_tarihi = datetime.now().isoformat()
-                if hasattr(entry, 'published_parsed') and entry.published_parsed:
-                    try:
-                        yayin_tarihi = time.strftime('%Y-%m-%dT%H:%M:%S', entry.published_parsed)
-                    except:
-                        pass
-                elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
-                    try:
-                        yayin_tarihi = time.strftime('%Y-%m-%dT%H:%M:%S', entry.updated_parsed)
-                    except:
-                        pass
-                
-                # Haber kaynağını belirle
-                kaynak = feed_url
-                if hasattr(feed, 'feed') and hasattr(feed.feed, 'title'):
-                    kaynak = feed.feed.title
-                elif hasattr(entry, 'source') and hasattr(entry.source, 'title'):
-                    kaynak = entry.source.title
-                
-                haber = {
-                    'baslik': entry.title if hasattr(entry, 'title') else "Başlık yok",
-                    'icerik': icerik,
-                    'ozet': "",  # Özetleme işlemi sonra yapılacak
-                    'url': entry.link if hasattr(entry, 'link') else "",
-                    'tarih': yayin_tarihi,
-                    'kaynak': kaynak,
-                    'kategori': kategori,
-                    'resim_url': resim_url
-                }
-                
-                # Özet oluştur
-                logger.info(f"Haber özetleniyor: {haber['baslik']}")
-                haber['ozet'] = ozet_olustur(haber['icerik'])
-                
-                # Özet çok kısaysa veya boşsa, başlığı kullan
-                if not haber['ozet'] or len(haber['ozet']) < 20:
-                    haber['ozet'] = haber['baslik']
-                
-                haberler.append(haber)
-        except Exception as e:
-            logger.error(f"Feed çekme hatası ({feed_url}): {e}")
-    
-    logger.info(f"{kategori} kategorisinde {len(haberler)} haber çekildi.")
-    return haberler
-
-def haberleri_veritabanina_kaydet(haberler):
-    """Haberleri veritabanına kaydeder"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    eklenen = 0
-    guncellenen = 0
-    
-    for haber in haberler:
-        # URL'ye göre kontrol et, varsa güncelle yoksa ekle
-        cursor.execute('SELECT id FROM haberler WHERE url = ?', (haber['url'],))
-        result = cursor.fetchone()
-        
-        if result:
-            # Güncelle
-            cursor.execute('''
-            UPDATE haberler 
-            SET baslik = ?, ozet = ?, icerik = ?, tarih = ?
-            WHERE url = ?
-            ''', (haber['baslik'], haber['ozet'], haber['icerik'], haber['tarih'], haber['url']))
-            guncellenen += 1
-        else:
-            # Yeni ekle
-            cursor.execute('''
-            INSERT INTO haberler (baslik, ozet, icerik, kategori, kaynak, url, resim_url, tarih)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                haber['baslik'], haber['ozet'], haber['icerik'], haber['kategori'],
-                haber['kaynak'], haber['url'], haber['resim_url'], haber['tarih']
-            ))
-            eklenen += 1
-    
-    conn.commit()
-    conn.close()
-    logger.info(f"Veritabanına {eklenen} haber eklendi, {guncellenen} haber güncellendi.")
-
 def arkaplan_haber_guncelleme():
     """Arka planda çalışarak haberleri düzenli olarak günceller"""
     while True:
@@ -601,9 +503,6 @@ def arkaplan_haber_guncelleme():
 haber_guncelleme_thread = threading.Thread(target=arkaplan_haber_guncelleme)
 haber_guncelleme_thread.daemon = True
 haber_guncelleme_thread.start()
-
-# LLM modelini başlat
-init_llm_model()
 
 @app.route('/')
 def index():
@@ -657,6 +556,100 @@ def model_bilgisi():
         "model_adi": LLM_MODEL if LLM_TYPE == "transformers" else "API tabanlı model"
     })
 
+@app.route('/api/models')
+def get_models():
+    """Kullanılabilir modelleri döndürür"""
+    models = {
+        "mrm8488/bert2bert_shared-turkish-summarization": "Türkçe Haber Özetleme (Varsayılan)",
+        "google/mt5-small": "Çok Dilli MT5 (Hafif)",
+        "facebook/mbart-large-cc25": "Çok Dilli MBART",
+        "basic": "Basit Özetleme"
+    }
+    return jsonify(models)
+
+@app.route('/api/model_status')
+def get_model_status():
+    """Model durumunu döndürür"""
+    global summarizer
+    return jsonify({
+        "ready": summarizer is not None,
+        "current_model": LLM_MODEL,
+        "type": LLM_TYPE,
+        "device": str(device)
+    })
+
+@app.route('/api/change_summary_mode', methods=['POST'])
+def change_summary_mode():
+    """Özet modunu değiştirir"""
+    global OZET_MODU
+    try:
+        data = request.get_json()
+        new_mode = data.get('mode')
+        
+        if new_mode not in ['normal', 'super']:
+            return jsonify({"success": False, "error": "Geçersiz özet modu"})
+        
+        OZET_MODU = new_mode
+        logger.info(f"Özet modu değiştirildi: {new_mode}")
+        return jsonify({"success": True, "message": f"Özet modu değiştirildi: {new_mode}"})
+    except Exception as e:
+        logger.error(f"Özet modu değiştirme hatası: {e}")
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route('/api/change_model', methods=['POST'])
+def change_model():
+    """Model değişikliği yapar"""
+    global summarizer, LLM_MODEL, LLM_TYPE
+    
+    try:
+        data = request.get_json()
+        new_model = data.get('model')
+        
+        if new_model == "basic":
+            summarizer = lambda metin, **kwargs: [{"summary_text": gelismis_basit_ozet(metin)}]
+            LLM_MODEL = "basic"
+            logger.info("Basit özetleme moduna geçildi")
+            return jsonify({"success": True, "message": "Basit özetleme moduna geçildi"})
+            
+        if new_model not in ["mrm8488/bert2bert_shared-turkish-summarization", "google/mt5-small", 
+                           "facebook/mbart-large-cc25"]:
+            return jsonify({"success": False, "error": "Geçersiz model"})
+        
+        try:
+            if "t5" in new_model.lower():
+                from transformers import T5ForConditionalGeneration, T5Tokenizer
+                model = T5ForConditionalGeneration.from_pretrained(new_model).to(device)
+                tokenizer = T5Tokenizer.from_pretrained(new_model)
+            elif "bert2bert" in new_model.lower():
+                from transformers import EncoderDecoderModel, BertTokenizer
+                model = EncoderDecoderModel.from_pretrained(new_model).to(device)
+                tokenizer = BertTokenizer.from_pretrained(new_model)
+            elif "mbart" in new_model.lower():
+                from transformers import MBartForConditionalGeneration, MBart50TokenizerFast
+                model = MBartForConditionalGeneration.from_pretrained(new_model).to(device)
+                tokenizer = MBart50TokenizerFast.from_pretrained(new_model)
+            
+            summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, 
+                               device=-1 if device.type == "cpu" else 0)
+            LLM_MODEL = new_model
+            logger.info(f"Model değiştirildi: {new_model}")
+            return jsonify({"success": True, "message": f"Model değiştirildi: {new_model}"})
+            
+        except Exception as e:
+            logger.error(f"Model değiştirme hatası: {e}")
+            summarizer = lambda metin, **kwargs: [{"summary_text": gelismis_basit_ozet(metin)}]
+            LLM_MODEL = "basic"
+            return jsonify({"success": False, "error": str(e)})
+            
+    except Exception as e:
+        logger.error(f"Model değiştirme isteği hatası: {e}")
+        return jsonify({"success": False, "error": "İstek işlenirken hata oluştu"})
+
 if __name__ == '__main__':
-    logger.info(f"Uygulama başlatılıyor... LLM Tipi: {LLM_TYPE}, Model: {LLM_MODEL if LLM_TYPE == 'transformers' else 'API tabanlı'}")
-    app.run(debug=True) 
+    try:
+        logger.info(f"Uygulama başlatılıyor... LLM Tipi: {LLM_TYPE}, Model: {LLM_MODEL if LLM_TYPE == 'transformers' else 'API tabanlı'}")
+        # Debug modunu kapatıp host'u açıyoruz
+        app.run(host='0.0.0.0', port=5000, debug=False)
+    except Exception as e:
+        logger.error(f"Uygulama başlatma hatası: {e}")
+        input("Devam etmek için bir tuşa basın...") 
