@@ -15,28 +15,9 @@ import sys
 import time
 from datetime import datetime
 
-# Varsayılan RSS feed'leri
-DEFAULT_FEEDS = {
-    'spor': [
-        'https://spor.haberler.com/rss/',
-        'https://www.sporx.com/rss/',
-    ],
-    'ekonomi': [
-        'https://ekonomi.haberler.com/rss/',
-        'https://www.bloomberght.com/rss',
-    ],
-    'teknoloji': [
-        'https://www.chip.com.tr/rss/',
-        'https://shiftdelete.net/feed',
-    ],
-    'gundem': [
-        'https://www.hurriyet.com.tr/rss/gundem',
-        'https://www.sozcu.com.tr/rss/gundem.xml',
-    ]
-}
 
 # RSS feed'leri için yapılandırma dosyası
-CONFIG_FILE = 'rss_feeds.json'
+CONFIG_FILE = 'backend/rss_feeds.json'
 
 def load_feeds():
     """Yapılandırma dosyasından RSS feed'lerini yükler"""
