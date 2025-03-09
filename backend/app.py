@@ -8,6 +8,8 @@ from transformers import pipeline
 from dotenv import load_dotenv
 import sqlite3
 import threading
+import logging
+from logging.handlers import RotatingFileHandler
 
 # .env dosyasını yükle
 load_dotenv()
@@ -69,21 +71,90 @@ RSS_FEEDS = {
     ]
 }
 
-# Transformers modelini yükle
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+# LLM modelini yükle
+AVAILABLE_MODELS = {
+    'mlsum/bert2bert': 'BERTurk (Türkçe)',
+    'google/mt5-small': 'MT5 (Çoklu Dil, Hızlı)',
+    'facebook/mbart-large-cc25': 'mBART (Çoklu Dil, Detaylı)',
+    'tiiuae/falcon-7b-instruct': 'Falcon (Güçlü)'
+}
 
-def ozet_olustur(metin, max_length=150):
+summarizer = None
+sentiment_analyzer = None
+
+def init_models(model_name='mlsum/bert2bert'):
+    """Modelleri başlat"""
+    global summarizer, sentiment_analyzer
+    try:
+        # Özetleme modeli
+        summarizer = pipeline("summarization", model=model_name)
+        # Duygu analizi modeli (Türkçe için)
+        sentiment_analyzer = pipeline("sentiment-analysis", model="savasy/bert-base-turkish-sentiment")
+        print(f"Modeller başarıyla yüklendi: {model_name}")
+        return {"durum": "başarılı", "basit_mod": False}
+    except Exception as e:
+        print(f"Model yükleme hatası: {e}")
+        # Yedek fonksiyonları kullan
+        summarizer = basit_ozet_wrapper
+        sentiment_analyzer = basit_duygu_analizi
+        return {"durum": "başarılı", "basit_mod": True}
+
+def basit_ozet_wrapper(metin, **kwargs):
+    return [{"summary_text": basit_ozet(metin)}]
+
+def basit_ozet(metin):
+    """Basit özetleme fonksiyonu"""
+    cumleler = metin.split('.')
+    return '. '.join(cumleler[:3]) + '.'
+
+def basit_duygu_analizi(metin):
+    """Basit duygu analizi"""
+    # Pozitif ve negatif kelime listeleri
+    pozitif = ['başarı', 'mutlu', 'güzel', 'iyi', 'kazanç', 'artış', 'olumlu', 'sevindi']
+    negatif = ['kaza', 'ölüm', 'kötü', 'zarar', 'düşüş', 'kayıp', 'kriz', 'üzücü']
+    
+    metin = metin.lower()
+    puan = 0
+    
+    for kelime in pozitif:
+        if kelime in metin:
+            puan += 1
+    for kelime in negatif:
+        if kelime in metin:
+            puan -= 1
+            
+    if puan > 0:
+        return [{'label': 'positive'}]
+    elif puan < 0:
+        return [{'label': 'negative'}]
+    return [{'label': 'neutral'}]
+
+def ozet_olustur(metin, ozet_modu="normal"):
     """Metni özetler"""
     if len(metin) < 100:  # Çok kısa metinleri özetleme
         return metin
     
     try:
-        ozet = summarizer(metin, max_length=max_length, min_length=30, do_sample=False)
-        return ozet[0]['summary_text']
+        # Metni cümlelere ayır
+        cumleler = [c.strip() for c in metin.split('.') if len(c.strip()) > 0]
+        
+        # Özet uzunluğunu ayarla
+        if ozet_modu == "super":
+            max_cumleler = 2
+        else:
+            max_cumleler = 4
+            
+        if summarizer == basit_ozet_wrapper:
+            return '. '.join(cumleler[:max_cumleler]) + '.'
+            
+        # Transformers modeliyle özet oluştur
+        ozet = summarizer(metin, max_length=512, min_length=30, do_sample=False)
+        ozet_cumleler = [c.strip() for c in ozet[0]['summary_text'].split('.') if len(c.strip()) > 0]
+        
+        return '. '.join(ozet_cumleler[:max_cumleler]) + '.'
     except Exception as e:
         print(f"Özetleme hatası: {e}")
-        # Basit bir alternatif: ilk birkaç cümleyi al
-        return ". ".join(metin.split(". ")[:3]) + "."
+        return basit_ozet(metin)
 
 def haberleri_getir(kategori):
     """Belirli bir kategorideki RSS feed'lerinden haberleri çeker"""
@@ -95,20 +166,26 @@ def haberleri_getir(kategori):
     for feed_url in RSS_FEEDS[kategori]:
         try:
             feed = feedparser.parse(feed_url)
-            for entry in feed.entries[:5]:  # Her feed'den en fazla 5 haber al
+            for entry in feed.entries[:5]:
                 haber = {
                     'baslik': entry.title,
                     'icerik': entry.description if hasattr(entry, 'description') else "",
-                    'ozet': "",  # Özetleme işlemi sonra yapılacak
+                    'ozet': "",
                     'url': entry.link,
                     'tarih': datetime.now().isoformat(),
                     'kaynak': feed.feed.title if hasattr(feed.feed, 'title') else feed_url,
                     'kategori': kategori,
-                    'resim_url': ""  # Resim URL'si varsa eklenecek
+                    'resim_url': "",
+                    'duygu': 'neutral'  # Varsayılan duygu
                 }
                 
-                # Özet oluştur
+                # Özet ve duygu analizi
                 haber['ozet'] = ozet_olustur(haber['icerik'])
+                try:
+                    duygu = sentiment_analyzer(haber['icerik'])[0]['label']
+                    haber['duygu'] = duygu
+                except Exception as e:
+                    print(f"Duygu analizi hatası: {e}")
                 
                 haberler.append(haber)
         except Exception as e:
@@ -162,10 +239,29 @@ haber_guncelleme_thread = threading.Thread(target=arkaplan_haber_guncelleme)
 haber_guncelleme_thread.daemon = True
 haber_guncelleme_thread.start()
 
+# Log dosyası yapılandırması
+log_handler = RotatingFileHandler('haber_ozet.log', maxBytes=10*1024*1024, backupCount=5)
+log_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+app.logger.addHandler(log_handler)
+app.logger.setLevel(logging.INFO)
+
 @app.route('/')
 def index():
     """Ana sayfa"""
     return render_template('index.html')
+
+@app.route('/api/ozet', methods=['POST'])
+def ozet_olustur_api():
+    """Metin özetleme API'si"""
+    data = request.get_json()
+    metin = data.get('metin', '')
+    ozet_modu = data.get('ozet_modu', 'normal')
+    
+    if not metin:
+        return jsonify({"hata": "Metin boş olamaz"}), 400
+    
+    ozet = ozet_olustur(metin, ozet_modu)
+    return jsonify({"ozet": ozet})
 
 @app.route('/api/haberler')
 def tum_haberler():
@@ -173,8 +269,14 @@ def tum_haberler():
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    ozet_modu = request.args.get('ozet_modu', 'normal')
+    
     cursor.execute('SELECT * FROM haberler ORDER BY tarih DESC LIMIT 50')
-    haberler = [dict(row) for row in cursor.fetchall()]
+    haberler = []
+    for row in cursor.fetchall():
+        haber = dict(row)
+        haber['ozet'] = ozet_olustur(haber['icerik'], ozet_modu)
+        haberler.append(haber)
     
     conn.close()
     return jsonify(haberler)
@@ -185,8 +287,14 @@ def kategori_haberleri(kategori):
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    ozet_modu = request.args.get('ozet_modu', 'normal')
+    
     cursor.execute('SELECT * FROM haberler WHERE kategori = ? ORDER BY tarih DESC LIMIT 20', (kategori,))
-    haberler = [dict(row) for row in cursor.fetchall()]
+    haberler = []
+    for row in cursor.fetchall():
+        haber = dict(row)
+        haber['ozet'] = ozet_olustur(haber['icerik'], ozet_modu)
+        haberler.append(haber)
     
     conn.close()
     return jsonify(haberler)
@@ -205,6 +313,31 @@ def kategori_yenile(kategori):
         return jsonify({"durum": "başarılı", "mesaj": f"{len(haberler)} haber güncellendi"})
     else:
         return jsonify({"durum": "hata", "mesaj": "Geçersiz kategori"}), 400
+
+@app.route('/api/models')
+def get_models():
+    """Kullanılabilir modelleri döndürür"""
+    return jsonify(AVAILABLE_MODELS)
+
+@app.route('/api/model/durum')
+def get_model_status():
+    """Model durumunu döndürür"""
+    return jsonify({
+        "basit_mod": summarizer == basit_ozet_wrapper
+    })
+
+@app.route('/api/model', methods=['POST'])
+def set_model():
+    """Kullanılacak modeli ayarlar"""
+    data = request.get_json()
+    model_name = data.get('model')
+    
+    if model_name not in AVAILABLE_MODELS:
+        return jsonify({"hata": "Geçersiz model"}), 400
+        
+    sonuc = init_models(model_name)
+    app.logger.info(f"Model değiştirildi: {model_name} - Basit mod: {sonuc['basit_mod']}")
+    return jsonify(sonuc)
 
 if __name__ == '__main__':
     app.run(debug=True) 

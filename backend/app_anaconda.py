@@ -34,10 +34,11 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # LLM model seçimi (çevre değişkeninden veya varsayılan)
-LLM_MODEL = os.getenv("LLM_MODEL", "facebook/bart-base")  # Daha hafif bir model
+LLM_MODEL = os.getenv("LLM_MODEL", "mlsum/bert2bert")  # Varsayılan model değiştirildi
 LLM_TYPE = os.getenv("LLM_TYPE", "transformers")  # transformers, openai
+OZET_MODU = os.getenv("OZET_MODU", "normal")  # normal veya super
 
-print(f"LLM Tipi: {LLM_TYPE}, Model: {LLM_MODEL}")
+print(f"LLM Tipi: {LLM_TYPE}, Model: {LLM_MODEL}, Özet Modu: {OZET_MODU}")
 
 app = Flask(__name__, 
             static_folder="../frontend/static",
@@ -48,41 +49,15 @@ def load_rss_feeds():
     """RSS feed'lerini yapılandırma dosyasından yükler"""
     config_file = 'rss_feeds.json'
     
-    # Varsayılan RSS feed'leri
-    default_feeds = {
-        'spor': [
-            'https://www.ntv.com.tr/spor.rss',
-            'https://www.sabah.com.tr/rss/spor.xml',
-        ],
-        'ekonomi': [
-            'https://www.takvim.com.tr/rss/ekonomi.xml',
-            'https://www.bloomberght.com/rss',
-            'https://www.yeniakit.com.tr/rss/haber/ekonomi'
-        ],
-        'teknoloji': [
-            'https://www.chip.com.tr/rss/',
-            'https://www.ntv.com.tr/teknoloji.rss',
-        ],
-        'gundem': [
-            'https://www.hurriyet.com.tr/rss/gundem',
-            'https://www.sozcu.com.tr/rss/gundem.xml',
-        ],
-        'magazin': [
-            'http://www.milliyet.com.tr/rss/rssNew/magazinRss.xml',
-            'https://www.sabah.com.tr/rss/magazin.xml',
-            
-        ]
-    }
-    
-    if os.path.exists(config_file):
-        try:
-            with open(config_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"RSS feed yapılandırma dosyası yüklenirken hata: {e}")
-            return default_feeds
-    else:
-        return default_feeds
+    try:
+        with open(config_file, 'r', encoding='utf-8') as f:
+            feeds = json.load(f)
+            logger.info(f"RSS feedleri başarıyla yüklendi: {config_file}")
+            return feeds
+    except Exception as e:
+        logger.error(f"RSS feed yapılandırma dosyası yüklenirken hata: {e}")
+        logger.warning("Varsayılan RSS feed'leri kullanılacak.")
+        return {}
 
 # RSS feed'lerini yükle
 RSS_FEEDS = load_rss_feeds()
@@ -141,31 +116,53 @@ def init_llm_model():
     if LLM_TYPE == "transformers" and pytorch_available:
         logger.info(f"Transformers modeli yükleniyor: {LLM_MODEL}")
         try:
-            # Daha hafif modeller için öneri listesi
-            hafif_modeller = [
-                "facebook/bart-base",  # İlk tercih
-                "sshleifer/distilbart-cnn-6-6",  # Distilled model, daha hafif
-                "t5-small",  # Çok daha hafif
-                "google/pegasus-xsum"  # Alternatif model
+            # Türkçe modeller için öneri listesi
+            turkce_modeller = [
+                "mlsum/bert2bert",  # Türkçe haber özetleme için özel model
+                "google/mt5-small",  # Çok dilli, hafif model
+                "facebook/mbart-large-cc25",  # Çok dilli BART
+                "bigscience/bloom-560m"  # Çok dilli, orta boyutlu model
             ]
             
             # Önce belirtilen modeli dene
             try:
-                summarizer = pipeline("summarization", model=LLM_MODEL)
+                if "t5" in LLM_MODEL.lower():
+                    from transformers import T5ForConditionalGeneration, T5Tokenizer
+                    model = T5ForConditionalGeneration.from_pretrained(LLM_MODEL)
+                    tokenizer = T5Tokenizer.from_pretrained(LLM_MODEL)
+                    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+                elif "bert2bert" in LLM_MODEL.lower():
+                    from transformers import EncoderDecoderModel, BertTokenizer
+                    model = EncoderDecoderModel.from_pretrained(LLM_MODEL)
+                    tokenizer = BertTokenizer.from_pretrained(LLM_MODEL)
+                    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+                else:
+                    summarizer = pipeline("summarization", model=LLM_MODEL)
                 logger.info(f"Model başarıyla yüklendi: {LLM_MODEL}")
             except Exception as e:
                 logger.error(f"{LLM_MODEL} modeli yüklenirken hata: {e}")
                 
-                # Belirtilen model yüklenemediyse, hafif modelleri sırayla dene
-                for hafif_model in hafif_modeller:
-                    if hafif_model != LLM_MODEL:  # Zaten denenmemişse
+                # Belirtilen model yüklenemediyse, Türkçe modelleri sırayla dene
+                for turkce_model in turkce_modeller:
+                    if turkce_model != LLM_MODEL:  # Zaten denenmemişse
                         try:
-                            logger.info(f"Alternatif model deneniyor: {hafif_model}")
-                            summarizer = pipeline("summarization", model=hafif_model)
-                            logger.info(f"Alternatif model başarıyla yüklendi: {hafif_model}")
+                            logger.info(f"Alternatif Türkçe model deneniyor: {turkce_model}")
+                            if "t5" in turkce_model.lower():
+                                from transformers import T5ForConditionalGeneration, T5Tokenizer
+                                model = T5ForConditionalGeneration.from_pretrained(turkce_model)
+                                tokenizer = T5Tokenizer.from_pretrained(turkce_model)
+                                summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+                            elif "bert2bert" in turkce_model.lower():
+                                from transformers import EncoderDecoderModel, BertTokenizer
+                                model = EncoderDecoderModel.from_pretrained(turkce_model)
+                                tokenizer = BertTokenizer.from_pretrained(turkce_model)
+                                summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+                            else:
+                                summarizer = pipeline("summarization", model=turkce_model)
+                            logger.info(f"Alternatif Türkçe model başarıyla yüklendi: {turkce_model}")
                             break
                         except Exception as e:
-                            logger.error(f"{hafif_model} modeli yüklenirken hata: {e}")
+                            logger.error(f"{turkce_model} modeli yüklenirken hata: {e}")
                 
                 # Hiçbir model yüklenemediyse
                 if summarizer is None:
@@ -200,7 +197,7 @@ def init_llm_model():
 def gelismis_basit_ozet_wrapper(metin, **kwargs):
     return [{"summary_text": gelismis_basit_ozet(metin)}]
 
-def gelismis_basit_ozet(metin):
+def gelismis_basit_ozet(metin, super_ozet=False):
     """Gelişmiş basit özetleme algoritması"""
     # Metni cümlelere ayır
     cumleler = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\!)\s', metin)
@@ -321,44 +318,92 @@ def temizle_html(html_icerik):
     
     return temiz_metin
 
+def temizle_metin(metin):
+    """Metni özetleme için hazırlar"""
+    # Önce HTML temizliği
+    temiz_metin = temizle_html(metin)
+    
+    # Gereksiz boşlukları temizle
+    temiz_metin = re.sub(r'\s+', ' ', temiz_metin).strip()
+    
+    # Noktalama işaretlerini düzelt
+    temiz_metin = re.sub(r'\.{2,}', '.', temiz_metin)  # Fazla noktaları temizle
+    temiz_metin = re.sub(r'\s+\.', '.', temiz_metin)   # Nokta öncesi boşlukları temizle
+    
+    # Reklam ve yönlendirme metinlerini temizle
+    reklam_kaliplari = [
+        r'Bu haber\s+.+\s+tarafından hazırlanmıştır\.',
+        r'Kaynak:.+',
+        r'Sponsorlu İçerik',
+        r'Reklam',
+        r'İlgili Haberler:.*',
+        r'Devamı için tıklayınız.*',
+        r'Haberin devamı için.*',
+        r'Detaylar için tıklayınız.*',
+        r'Ayrıntılar için tıklayınız.*',
+        r'Devamını oku.*',
+        r'Daha fazlası için.*'
+    ]
+    
+    for kalip in reklam_kaliplari:
+        temiz_metin = re.sub(kalip, '', temiz_metin, flags=re.IGNORECASE)
+    
+    return temiz_metin.strip()
+
 def ozet_olustur(metin, max_length=150):
     """Metni özetler"""
     if len(metin) < 100:  # Çok kısa metinleri özetleme
         return metin
     
-    # HTML içeriğini temizle
-    temiz_metin = temizle_html(metin)
+    # Metni temizle ve özetleme için hazırla
+    temiz_metin = temizle_metin(metin)
+    
+    # Özet uzunluğunu ayarla
+    if OZET_MODU == "super":
+        max_length = 75  # Süper özet için daha kısa
+        min_length = 20
+    else:
+        max_length = 150  # Normal özet
+        min_length = 30
     
     try:
         if LLM_TYPE == "transformers":
-            # Transformers modellerinin maksimum girdi uzunluğu sınırlı olabilir
-            # Bu nedenle çok uzun metinleri kısaltıyoruz
-            max_input_length = 1024  # Çoğu model için makul bir değer
-            if len(temiz_metin) > max_input_length:
-                temiz_metin = temiz_metin[:max_input_length]
-                
-            ozet = summarizer(temiz_metin, max_length=max_length, min_length=30, do_sample=False)
+            if "falcon" in LLM_MODEL.lower():
+                # Falcon modeli için özel prompt
+                prompt = f"Lütfen bu haberi {'en fazla 2 cümle ile' if OZET_MODU == 'super' else 'detaylı şekilde'} özetle:\n\n{temiz_metin}"
+                ozet = summarizer(prompt, max_length=max_length, min_length=min_length, do_sample=False)
+            elif "bert2bert" in LLM_MODEL.lower():
+                # BERT2BERT modeli için özel ayarlar
+                ozet = summarizer(temiz_metin, max_length=max_length, min_length=min_length, do_sample=False, num_beams=4)
+            elif "mt5" in LLM_MODEL.lower() or "mbart" in LLM_MODEL.lower():
+                # Çok dilli modeller için
+                ozet = summarizer(temiz_metin, max_length=max_length, min_length=min_length, do_sample=False, num_beams=4, length_penalty=2.0)
+            else:
+                ozet = summarizer(temiz_metin, max_length=max_length, min_length=min_length, do_sample=False)
+            
             return ozet[0]['summary_text']
+            
         elif LLM_TYPE == "openai":
             import openai
             openai.api_key = os.getenv("OPENAI_API_KEY")
             if not openai.api_key:
                 raise ValueError("OPENAI_API_KEY çevre değişkeni ayarlanmamış")
-                
+            
+            prompt = f"Aşağıdaki haberi {'en fazla 2 cümle ile' if OZET_MODU == 'super' else 'detaylı şekilde'} özetle. Sadece özeti yaz, başka bir şey ekleme:\n\n{temiz_metin}"
             response = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt=f"Aşağıdaki haberi kısa ve öz bir şekilde özetle. Sadece özeti yaz, başka bir şey ekleme:\n\n{temiz_metin}",
+                prompt=prompt,
                 max_tokens=max_length,
                 temperature=0.3
             )
             return response.choices[0].text.strip()
         else:
             # Bilinmeyen LLM tipi, basit özetleme kullan
-            return gelismis_basit_ozet(temiz_metin)
+            return gelismis_basit_ozet(temiz_metin, super_ozet=OZET_MODU == "super")
     except Exception as e:
         logger.error(f"Özetleme hatası: {e}")
         # Gelişmiş basit özetleme
-        return gelismis_basit_ozet(temiz_metin)
+        return gelismis_basit_ozet(temiz_metin, super_ozet=OZET_MODU == "super")
 
 def haberleri_getir(kategori):
     """Belirli bir kategorideki RSS feed'lerinden haberleri çeker"""
