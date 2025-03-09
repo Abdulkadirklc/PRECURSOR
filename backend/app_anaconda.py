@@ -17,6 +17,15 @@ print("="*50)
 print("PRECURSOR - Haber Özet Platformu başlatılıyor...")
 print("Python sürümü:", sys.version)
 print("Çalışma dizini:", os.getcwd())
+
+# GPU kontrolü
+import torch
+device = torch.device("cuda" if torch.cuda.is_available() and os.getenv("GPU_AVAILABLE") == "1" else "cpu")
+print(f"Kullanılan cihaz: {device}")
+if device.type == "cuda":
+    print(f"GPU modeli: {torch.cuda.get_device_name(0)}")
+    print(f"Kullanılabilir GPU sayısı: {torch.cuda.device_count()}")
+    print(f"CUDA sürümü: {torch.version.cuda}")
 print("="*50)
 
 # Loglama yapılandırması
@@ -71,6 +80,27 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+def temizle_veritabani():
+    """Veritabanını temizler ve yeni baştan başlar"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Tüm haberleri sil
+    cursor.execute('DELETE FROM haberler')
+    
+    conn.commit()
+    conn.close()
+    logger.info("Veritabanı temizlendi, yeni haberler yüklenecek...")
+
+def ilk_haberleri_yukle():
+    """Uygulama başlatıldığında tüm kategorilerden haberleri yükler"""
+    logger.info("İlk haberler yükleniyor...")
+    for kategori in RSS_FEEDS.keys():
+        logger.info(f"{kategori} kategorisi yükleniyor...")
+        haberler = haberleri_getir(kategori)
+        haberleri_veritabanina_kaydet(haberler)
+    logger.info("İlk haberler başarıyla yüklendi.")
+
 # Veritabanını oluştur
 def init_db():
     conn = get_db_connection()
@@ -96,8 +126,10 @@ def init_db():
     conn.close()
     logger.info(f"Veritabanı başarıyla oluşturuldu veya mevcut veritabanı kullanıldı: {DB_FILE}")
 
-# Veritabanını başlat
+# Veritabanını başlat, temizle ve ilk haberleri yükle
 init_db()
+temizle_veritabani()
+ilk_haberleri_yukle()
 
 # LLM modelini başlat
 summarizer = None
@@ -108,6 +140,7 @@ def init_llm_model():
     try:
         import torch
         logger.info(f"PyTorch sürümü: {torch.__version__}")
+        logger.info(f"Kullanılan cihaz: {device}")
         pytorch_available = True
     except ImportError:
         logger.error("PyTorch yüklü değil. Basit özetleme kullanılacak.")
@@ -128,17 +161,17 @@ def init_llm_model():
             try:
                 if "t5" in LLM_MODEL.lower():
                     from transformers import T5ForConditionalGeneration, T5Tokenizer
-                    model = T5ForConditionalGeneration.from_pretrained(LLM_MODEL)
+                    model = T5ForConditionalGeneration.from_pretrained(LLM_MODEL).to(device)
                     tokenizer = T5Tokenizer.from_pretrained(LLM_MODEL)
-                    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+                    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device.type == "cuda" else -1)
                 elif "bert2bert" in LLM_MODEL.lower():
                     from transformers import EncoderDecoderModel, BertTokenizer
-                    model = EncoderDecoderModel.from_pretrained(LLM_MODEL)
+                    model = EncoderDecoderModel.from_pretrained(LLM_MODEL).to(device)
                     tokenizer = BertTokenizer.from_pretrained(LLM_MODEL)
-                    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+                    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device.type == "cuda" else -1)
                 else:
-                    summarizer = pipeline("summarization", model=LLM_MODEL)
-                logger.info(f"Model başarıyla yüklendi: {LLM_MODEL}")
+                    summarizer = pipeline("summarization", model=LLM_MODEL, device=0 if device.type == "cuda" else -1)
+                logger.info(f"Model başarıyla yüklendi: {LLM_MODEL} ({device} üzerinde)")
             except Exception as e:
                 logger.error(f"{LLM_MODEL} modeli yüklenirken hata: {e}")
                 
@@ -149,17 +182,17 @@ def init_llm_model():
                             logger.info(f"Alternatif Türkçe model deneniyor: {turkce_model}")
                             if "t5" in turkce_model.lower():
                                 from transformers import T5ForConditionalGeneration, T5Tokenizer
-                                model = T5ForConditionalGeneration.from_pretrained(turkce_model)
+                                model = T5ForConditionalGeneration.from_pretrained(turkce_model).to(device)
                                 tokenizer = T5Tokenizer.from_pretrained(turkce_model)
-                                summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+                                summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device.type == "cuda" else -1)
                             elif "bert2bert" in turkce_model.lower():
                                 from transformers import EncoderDecoderModel, BertTokenizer
-                                model = EncoderDecoderModel.from_pretrained(turkce_model)
+                                model = EncoderDecoderModel.from_pretrained(turkce_model).to(device)
                                 tokenizer = BertTokenizer.from_pretrained(turkce_model)
-                                summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+                                summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device.type == "cuda" else -1)
                             else:
-                                summarizer = pipeline("summarization", model=turkce_model)
-                            logger.info(f"Alternatif Türkçe model başarıyla yüklendi: {turkce_model}")
+                                summarizer = pipeline("summarization", model=turkce_model, device=0 if device.type == "cuda" else -1)
+                            logger.info(f"Alternatif Türkçe model başarıyla yüklendi: {turkce_model} ({device} üzerinde)")
                             break
                         except Exception as e:
                             logger.error(f"{turkce_model} modeli yüklenirken hata: {e}")
