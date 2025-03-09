@@ -1,0 +1,31 @@
+{
+    "spor": [
+        "https://www.ntv.com.tr/spor.rss",
+        "https://www.sabah.com.tr/rss/spor.xml",
+        "https://www.sporx.com/rss.xml",
+        "https://www.fotomac.com.tr/rss/anasayfa.xml"
+    ],
+    "ekonomi": [
+        "https://www.takvim.com.tr/rss/ekonomi.xml",
+        "https://www.bloomberght.com/rss",
+        "https://www.dunya.com/feed",
+        "https://www.paraanaliz.com/feed"
+    ],
+    "teknoloji": [
+        "https://www.chip.com.tr/rss/",
+        "https://www.ntv.com.tr/teknoloji.rss",
+        "https://shiftdelete.net/feed",
+        "https://www.webtekno.com/rss.xml"
+    ],
+    "gundem": [
+        "https://www.hurriyet.com.tr/rss/gundem",
+        "https://www.sozcu.com.tr/rss/gundem.xml",
+        "https://www.cumhuriyet.com.tr/rss/son-dakika.xml",
+        "https://www.ntv.com.tr/gundem.rss"
+    ],
+    "magazin": [
+        "http://www.milliyet.com.tr/rss/rssNew/magazinRss.xml",
+        "https://www.sabah.com.tr/rss/magazin.xml",
+        "https://www.haberturk.com/rss/magazin.xml"
+    ]
+} 
