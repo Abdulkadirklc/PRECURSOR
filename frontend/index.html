@@ -12,6 +12,13 @@
         <div class="container">
             <h1>PRECURSOR</h1>
             <p>Yapay Zeka Destekli Haber Özet Platformu</p>
+            <div class="model-secimi">
+                <label for="model-select">Dil Modeli:</label>
+                <select id="model-select">
+                    <!-- Modeller JavaScript ile doldurulacak -->
+                </select>
+                <span id="model-durum" class="model-durum"></span>
+            </div>
         </div>
     </header>
 
@@ -21,6 +28,10 @@
                 <li><a href="#" data-kategori="tum" class="active">Tüm Haberler</a></li>
                 <!-- Kategoriler JavaScript ile doldurulacak -->
             </ul>
+            <div class="ozet-modu">
+                <button id="normal-ozet" class="active">Normal Özet</button>
+                <button id="super-ozet">Süper Özet</button>
+            </div>
         </div>
     </nav>
 
