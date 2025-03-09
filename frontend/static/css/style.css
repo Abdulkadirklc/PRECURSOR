@@ -22,17 +22,27 @@ body {
 header {
     background-color: #2c3e50;
     color: #fff;
-    padding: 20px 0;
+    padding: 15px 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header .title-section {
+    flex: 1;
+}
+
 header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 5px;
+    font-size: 2rem;
+    margin-bottom: 2px;
 }
 
 header p {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     opacity: 0.8;
 }
 
@@ -189,68 +199,88 @@ footer {
 
 /* Özet modu butonları */
 .ozet-modu {
+    margin: 10px 0;
+}
+
+.ozet-modu .btn-group {
     display: flex;
-    gap: 10px;
-    margin-left: auto;
+    gap: 8px;
 }
 
-.ozet-modu button {
-    padding: 8px 16px;
-    border: 2px solid #007bff;
+.ozet-modu .btn {
     background: transparent;
-    color: #007bff;
-    border-radius: 20px;
+    border: 1px solid #3498db;
+    color: #3498db;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    border-radius: 4px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    transition: all 0.2s;
 }
 
-.ozet-modu button:hover {
-    background: #007bff;
-    color: white;
+.ozet-modu .btn:hover {
+    background: rgba(52, 152, 219, 0.1);
 }
 
-.ozet-modu button.active {
-    background: #007bff;
-    color: white;
+.ozet-modu .btn.active {
+    background: #3498db;
+    color: #fff;
 }
 
 /* Model seçimi */
 .model-secimi {
-    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 6px;
 }
 
 .model-secimi label {
-    color: #fff;
-    margin-right: 10px;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+    white-space: nowrap;
+    opacity: 0.9;
 }
 
 .model-secimi select {
-    padding: 8px;
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.9);
     border: none;
-    background: #fff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.9rem;
     color: #2c3e50;
-    font-size: 1rem;
+    max-width: 280px;
     cursor: pointer;
 }
 
+.model-secimi select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.5);
+}
+
 .model-durum {
-    display: inline-block;
-    margin-left: 10px;
+    font-size: 0.85rem;
     padding: 4px 8px;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
-    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
-.model-durum.basit {
-    background: #e74c3c;
+.model-durum.yukleniyor {
+    background-color: rgba(255, 243, 205, 0.2);
+    color: #ffd43b;
 }
 
-.model-durum.yapay-zeka {
-    background: #2ecc71;
+.model-durum.hazir {
+    background-color: rgba(212, 237, 218, 0.2);
+    color: #51cf66;
+}
+
+.model-durum.hata {
+    background-color: rgba(248, 215, 218, 0.2);
+    color: #ff6b6b;
 }
 
 /* Duygu ikonları */

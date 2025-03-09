@@ -10,12 +10,17 @@
 <body>
     <header>
         <div class="container">
-            <h1>PRECURSOR</h1>
-            <p>Yapay Zeka Destekli Haber Özet Platformu</p>
+            <div class="title-section">
+                <h1>PRECURSOR</h1>
+                <p>Yapay Zeka Destekli Haber Özet Platformu</p>
+            </div>
             <div class="model-secimi">
-                <label for="model-select">Dil Modeli:</label>
-                <select id="model-select">
-                    <!-- Modeller JavaScript ile doldurulacak -->
+                <label for="model-select">Model:</label>
+                <select id="model-select" class="form-control">
+                    <option value="mlsum/bert2bert">BERT2BERT (500MB)</option>
+                    <option value="google/mt5-small">MT5-Small (1.2GB)</option>
+                    <option value="facebook/mbart-large-cc25">MBART (1.6GB)</option>
+                    <option value="tiiuae/falcon-7b-instruct">Falcon-7B (14GB)</option>
                 </select>
                 <span id="model-durum" class="model-durum"></span>
             </div>
@@ -29,8 +34,10 @@
                 <!-- Kategoriler JavaScript ile doldurulacak -->
             </ul>
             <div class="ozet-modu">
-                <button id="normal-ozet" class="active">Normal Özet</button>
-                <button id="super-ozet">Süper Özet</button>
+                <div class="btn-group" role="group" aria-label="Özet Modu">
+                    <button type="button" class="btn btn-outline-primary active" data-mode="normal">Normal Özet (3-4 cümle)</button>
+                    <button type="button" class="btn btn-outline-primary" data-mode="super">Süper Özet (2 cümle)</button>
+                </div>
             </div>
         </div>
     </nav>

@@ -150,60 +150,94 @@ async function modelleriYukle() {
     }
 }
 
-// Model değiştiğinde
-modelSelect.addEventListener('change', async () => {
-    const model = modelSelect.value;
+// Model değişikliğini dinle
+document.getElementById('model-select').addEventListener('change', function() {
     const modelDurum = document.getElementById('model-durum');
-    modelDurum.textContent = 'Yükleniyor...';
-    modelDurum.className = 'model-durum';
-    
-    try {
-        const response = await fetch('/api/model', {
+    modelDurum.textContent = 'Model değiştiriliyor...';
+    modelDurum.className = 'model-durum yukleniyor';
+
+    fetch('/api/change_model', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            model: this.value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            modelDurum.textContent = 'Model hazır';
+            modelDurum.className = 'model-durum hazir';
+            loadNews(); // Haberleri yeni modelle yükle
+        } else {
+            modelDurum.textContent = 'Hata: ' + data.error;
+            modelDurum.className = 'model-durum hata';
+        }
+    })
+    .catch(error => {
+        modelDurum.textContent = 'Hata oluştu';
+        modelDurum.className = 'model-durum hata';
+        console.error('Model değiştirme hatası:', error);
+    });
+});
+
+// Özet modu değişikliğini dinle
+document.querySelectorAll('.ozet-modu .btn').forEach(button => {
+    button.addEventListener('click', function() {
+        // Aktif sınıfı güncelle
+        document.querySelectorAll('.ozet-modu .btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        this.classList.add('active');
+
+        // Özet modunu güncelle
+        const mode = this.getAttribute('data-mode');
+        fetch('/api/change_summary_mode', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ model })
-        });
-        
-        if (response.ok) {
-            // Model durumunu kontrol et
-            const durum = await response.json();
-            if (durum.basit_mod) {
-                modelDurum.textContent = 'Basit Mod';
-                modelDurum.classList.add('basit');
-            } else {
-                modelDurum.textContent = 'Yapay Zeka';
-                modelDurum.classList.add('yapay-zeka');
+            body: JSON.stringify({
+                mode: mode
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadNews(); // Haberleri yeni özet moduyla yükle
             }
-            // Haberleri yeniden yükle
-            haberleriYukle(aktifKategori);
-        }
-    } catch (error) {
-        console.error('Model değiştirme hatası:', error);
-        modelDurum.textContent = 'Hata!';
-        modelDurum.classList.add('basit');
-    }
+        })
+        .catch(error => {
+            console.error('Özet modu değiştirme hatası:', error);
+        });
+    });
 });
 
 // Sayfa yüklendiğinde model durumunu kontrol et
-async function modelDurumunuKontrolEt() {
+window.addEventListener('DOMContentLoaded', function() {
     const modelDurum = document.getElementById('model-durum');
-    try {
-        const response = await fetch('/api/model/durum');
-        const durum = await response.json();
-        if (durum.basit_mod) {
-            modelDurum.textContent = 'Basit Mod';
-            modelDurum.classList.add('basit');
-        } else {
-            modelDurum.textContent = 'Yapay Zeka';
-            modelDurum.classList.add('yapay-zeka');
-        }
-    } catch (error) {
-        console.error('Model durum kontrolü hatası:', error);
-        modelDurum.textContent = 'Bilinmiyor';
-    }
-}
+    modelDurum.textContent = 'Model kontrol ediliyor...';
+    modelDurum.className = 'model-durum yukleniyor';
+
+    fetch('/api/model_status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.ready) {
+                modelDurum.textContent = 'Model hazır';
+                modelDurum.className = 'model-durum hazir';
+            } else {
+                modelDurum.textContent = 'Model yükleniyor...';
+                modelDurum.className = 'model-durum yukleniyor';
+            }
+        })
+        .catch(error => {
+            modelDurum.textContent = 'Hata oluştu';
+            modelDurum.className = 'model-durum hata';
+            console.error('Model durumu kontrolü hatası:', error);
+        });
+});
 
 // Duygu ikonlarını oluştur
 function getDuyguIkonu(duygu) {
